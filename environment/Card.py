@@ -1,3 +1,6 @@
+from copy import deepcopy
+
+
 class Card:
     _char_to_string = {
         "H": "hearts",
@@ -114,7 +117,7 @@ class CombinationFinder:
     """
 
     @staticmethod
-    def _path_finder(cards: tuple, bitmask: int, current_card_idx: int, *args) -> int:
+    def _path_finder(cards: list, bitmask: int, current_card_idx: int, *args) -> int:
         """
         Finds the maximum length of the path between cards, that return true in the card methods
         :param cards:
@@ -158,7 +161,7 @@ class CombinationFinder:
     """
 
     @staticmethod
-    def has_royal_flush(cards: tuple) -> bool:
+    def has_royal_flush(cards: list) -> bool:
         for i in range(len(cards)):
             if cards[i].val[1] == "a" \
                     and CombinationFinder._path_finder(cards, ((1 << len(cards)) - 1) ^ (1 << i), i, Card.same_suit,
@@ -167,15 +170,15 @@ class CombinationFinder:
         return False
 
     @staticmethod
-    def has_straight_flush(cards: tuple) -> bool:
+    def has_straight_flush(cards: list) -> bool:
         return CombinationFinder.has_flush(cards) and CombinationFinder.has_straight(cards)
 
     @staticmethod
-    def has_four_of_a_kind(cards: tuple) -> bool:
+    def has_four_of_a_kind(cards: list) -> bool:
         return CombinationFinder._path_finder(cards, (1 << len(cards)) - 1, -1, Card.same_pips)  == 4
 
     @staticmethod
-    def has_full_house(cards: tuple) -> bool:
+    def has_full_house(cards: list) -> bool:
         a = 0
         b = 0
         for i in range(len(cards)):
@@ -189,21 +192,21 @@ class CombinationFinder:
         return False
 
     @staticmethod
-    def has_flush(cards: tuple) -> bool:
+    def has_flush(cards: list) -> bool:
         a = CombinationFinder._path_finder(cards, (1 << len(cards)) - 1, -1, Card.same_suit)
         return a >= 5
 
     @staticmethod
-    def has_straight(cards: tuple) -> bool:
+    def has_straight(cards: list) -> bool:
         a = CombinationFinder._path_finder(cards, (1 << len(cards)) - 1, -1, Card.greater_than_by_one)
         return a >= 5
 
     @staticmethod
-    def has_three_of_a_kind(cards: tuple) -> bool:
+    def has_three_of_a_kind(cards: list) -> bool:
         return CombinationFinder._path_finder(cards, (1 << len(cards)) - 1, -1, Card.same_pips) == 3
 
     @staticmethod
-    def has_two_pairs(cards: tuple) -> bool:
+    def has_two_pairs(cards: list) -> bool:
         a = 0
         for i in range(len(cards)):
             if CombinationFinder._path_finder(cards, ((1 << len(cards)) - 1) ^ (1 << i), i, Card.same_pips) + 1 >= 2:
@@ -211,11 +214,11 @@ class CombinationFinder:
         return a >= 4
 
     @staticmethod
-    def has_pair(cards: tuple) -> bool:
+    def has_pair(cards: list) -> bool:
         return CombinationFinder._path_finder(cards, (1 << len(cards)) - 1, -1, Card.same_pips) == 2
 
     @staticmethod
-    def combination_determiner(cards: tuple) -> int:
+    def combination_determiner(cards: list) -> int:
         if CombinationFinder.has_royal_flush(cards):
             return 10
         if CombinationFinder.has_straight_flush(cards):
@@ -235,6 +238,31 @@ class CombinationFinder:
         if CombinationFinder.has_pair(cards):
             return 2
         return 1
+
+
+    # TODO
+    @staticmethod
+    def combination_comparator(cards1: list, cards2: list):
+        """
+        Returns positive number if the first list of cards is stronger than the second list of cards,
+        negative if weaker and 0 if they are equally strong.\n
+        :param cards1: first list of coards to compare
+        :param cards2: second list of coards to compare
+        :return: positive, negative or 0
+        """
+
+        strength1 = CombinationFinder.combination_determiner(cards1)
+        strength2 = CombinationFinder.combination_determiner(cards2)
+        dif = strength1 - strength2
+        if dif != 0:
+            return dif
+
+        cards1 = deepcopy(cards1)
+        cards2 = deepcopy(cards2)
+
+        cards1.sort(key=lambda card: card.get_pips())
+        cards2.sort(key=lambda card: card.get_pips())
+
 
 
 if __name__ == "__main__":
@@ -257,7 +285,7 @@ if __name__ == "__main__":
 
     # Should print all numbers from 10 to 1
     for test in tests:
-        print(CombinationFinder.combination_determiner(tuple(test)))
+        print(CombinationFinder.combination_determiner(test))
     print(tests)
 
 
