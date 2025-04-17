@@ -34,11 +34,9 @@ from Player import player_profile_string
 #         return d
 
 
-
-
 class Game:
-
     logger = logging.getLogger("Game")
+    logger.setLevel(logging.WARNING)
 
     @staticmethod
     def _create_player_profile(start_value: int, player_id: uuid):
@@ -109,14 +107,9 @@ class Game:
             player_id = self.players_ids[i]
             self.players[i].update_player_profile(deepcopy(self.players_profiles[player_id]))
 
-        self.pots = [0]
-        self.players_in_pots = [player_id for player_id in self.players_ids]
-        self.pots_bet = [0]  # bet to participate in the pot
-
         self.community_cards = []
         self.shown_community_cards = []
         self.current_round_bet = 0
-
 
     def _create_game_info(self):
         """
@@ -129,7 +122,6 @@ class Game:
             "small_blind": self.small_blind,
             "dealer_idx": self.dealer_idx,
             "players_profiles": self.players_profiles,
-            "pots": self.pots,
             "shown_community_cards": self.shown_community_cards,
             "current_bet": self.current_round_bet,
             "players_ids": self.players_ids,
@@ -143,7 +135,7 @@ class Game:
         :param game_info: dictionary of game information
         :return:
         """
-        s = ""
+        s = "GAME CURRENT STATE:\n\n"
         for key in game_info:
             if key != "players_profiles":
                 s += f"{key}: {game_info[key]}\n"
@@ -174,7 +166,6 @@ class Game:
         for i in range(self.num_players):
             player = self.players[i]
             player.update_game_info(deepcopy(game_info))
-
 
         if verbose:
             return game_info
@@ -282,9 +273,12 @@ class Game:
                 self.provide_game_info()
                 return False
 
+        # Set current_round_bet back to 0
+        for player_profile in self.players_profiles.values():
+            player_profile["current_round_bet"] = 0
+
         self.provide_game_info()
         return self.count_active_players() != 1
-
 
     def _update_players_profiles(self):
         """Updates the players profiles"""
@@ -320,6 +314,7 @@ class Game:
             self.game_end()
             return
 
+        Game.logger.debug(Game.game_info_to_string(self._create_game_info()))
         self.current_round_bet = 0
         self.shown_community_cards = self.community_cards[:3]
         start_bet_idx = self._get_next_player_idx(self.dealer_idx)
@@ -327,6 +322,7 @@ class Game:
             self.game_end()
             return
 
+        Game.logger.debug(Game.game_info_to_string(self._create_game_info()))
         self.current_round_bet = 0
         self.shown_community_cards.append(self.community_cards[3])
         start_bet_idx = self._get_next_player_idx(self.dealer_idx)
@@ -334,6 +330,7 @@ class Game:
             self.game_end()
             return
 
+        Game.logger.debug(Game.game_info_to_string(self._create_game_info()))
         self.current_round_bet = 0
         self.shown_community_cards.append(self.community_cards[4])
         start_bet_idx = self._get_next_player_idx(self.dealer_idx)
@@ -351,7 +348,6 @@ class Game:
         self.game_end()
         self.provide_game_info()
 
-
     def game_end(self):
         """Updates the information about the end of the game (determines the winner, gives the money back"""
         players_profiles = deepcopy(list(self.players_profiles.values()))
@@ -367,7 +363,7 @@ class Game:
                 break
             j = i
             while j < len(players_profiles) and CombinationFinder.combination_comparator(
-                players_profiles[i]["cards"], players_profiles[j]["cards"]
+                    players_profiles[i]["cards"], players_profiles[j]["cards"]
             ) == 0:
                 j += 1
 
@@ -379,7 +375,6 @@ class Game:
             for k in range(j + 1, len(players_profiles)):
                 total_gain += min(players_profiles[k]["bet"], get_bet)
                 players_profiles[k]["bet"] = max(0, players_profiles[k]["bet"] - get_bet)
-
 
             for k in range(i, j + 1):
                 players_profiles[k]["money"] += total_gain // m
@@ -398,3 +393,4 @@ class Game:
 
         self._update_players_profiles()
         self.dealer_idx = self._get_next_player_idx(self.dealer_idx)
+        Game.logger.debug(Game.game_info_to_string(self._create_game_info()))

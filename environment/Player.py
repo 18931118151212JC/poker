@@ -71,14 +71,15 @@ class HumanPlayer(PlayerBase):
 
         for player_id in self.game_info["players_profiles"]:
             player_profile = self.game_info["players_profiles"][player_id]
-            s += f"{player_id}:\n {self._player_profile_string(player_profile)}\n"
+            s += f"{player_id}:\n {player_profile_string(player_profile)}\n"
 
         return s
 
     def action(self):
         if self.verbose:
-            print(f"Game:\n {self._game_string()}")
-            print(f"Player:\n {self._player_profile_string(self.player_profile)}")
+            # UNCOMMENT THIS LINE TO SEE THE GAME STATE AS THE PLAYER
+            # print(f"Game:\n {self._game_string()}")
+            print(f"Player:\n {player_profile_string(self.player_profile)}")
             print("=" * 100)
 
             print("""Choose action:
