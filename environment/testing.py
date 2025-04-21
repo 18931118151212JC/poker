@@ -11,7 +11,7 @@ if __name__ == '__main__':
     seed(0)
 
     # SET LEVEL TO DEBUG IF YOU WANT TO SEE THE GAME INFORMATION AFTER EVERY ROUND, SET TO WARNING NOT TO
-    Game.logger.setLevel(DEBUG)
+    Game.logger.setLevel(WARNING)
 
     logging.basicConfig(
         format='%(message)s',

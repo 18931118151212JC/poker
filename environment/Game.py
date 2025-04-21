@@ -33,6 +33,20 @@ from Player import player_profile_string
 #         d['is_in_game'] = self.is_in_game
 #         return d
 
+class GameInfo:
+    """
+    Class of information about the game
+    """
+    def __init__(self):
+        self.small_blind = None
+        self.num_players = None
+        self.dealer_idx = None
+        self.players_profiles = None
+        self.shown_community_cards = None
+        self.current_bet = None
+        self.players_ids = None
+        self.game_idx = None
+        self.round_idx = None
 
 class Game:
     logger = logging.getLogger("Game")

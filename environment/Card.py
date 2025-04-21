@@ -116,6 +116,9 @@ class Card:
     def __repr__(self):
         return str(self)
 
+    def __eq__(self, other):
+        return self.val == other.val
+
 
 class CombinationFinder:
     """
