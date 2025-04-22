@@ -393,7 +393,7 @@ class CombinationFinder:
 
         for i in range(len(cards2)):
             if cards2[i].val[0] == suit2:
-                suit_cards1.append(cards2[i])
+                suit_cards2.append(cards2[i])
 
         for i in range(5):
             if suit_cards1[i].get_pips() != suit_cards2[i].get_pips():

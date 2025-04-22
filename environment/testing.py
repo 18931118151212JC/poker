@@ -1,9 +1,9 @@
 import sys
 
 from poker.environment.Game import Game
-from poker.environment.Player import HumanPlayer
+from poker.Players.HumanPlayer import HumanPlayer
 from random import seed
-from logging import DEBUG, WARNING
+from logging import WARNING, DEBUG
 import logging
 
 if __name__ == '__main__':

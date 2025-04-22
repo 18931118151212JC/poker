@@ -1,30 +1,5 @@
-def player_profile_string(player_profile: dict):
-    s = ""
-    for key in player_profile:
-        s += f"\t{key}: {player_profile[key]}\n"
-
-    return s
-
-
-class PlayerBase:
-    """
-    Base for different subclasses of players with its own agents and behaviors
-    """
-
-    def __init__(self, player_profile: dict):
-        self.game_info = {}
-        self.player_profile = player_profile
-
-    def update_game_info(self, game_info: dict):
-        self.game_info = game_info
-
-    def update_player_profile(self, player_profile: dict):
-        self.player_profile = player_profile
-
-    def action(self):
-        """Returns the bet the player did"""
-        pass
-
+from .PlayerBase import PlayerBase
+from poker.environment.Game import GameInfo
 
 class HumanPlayer(PlayerBase):
     """
@@ -61,25 +36,13 @@ class HumanPlayer(PlayerBase):
 
         return s
 
-    def _game_string(self):
-        s = ""
-        for key in self.game_info:
-            if key != "players_profiles":
-                s += f"{key}: {self.game_info[key]}\n"
 
-        s += "players_profiles:\n"
-
-        for player_id in self.game_info["players_profiles"]:
-            player_profile = self.game_info["players_profiles"][player_id]
-            s += f"{player_id}:\n {player_profile_string(player_profile)}\n"
-
-        return s
 
     def action(self):
         if self.verbose:
             # UNCOMMENT THIS LINE TO SEE THE GAME STATE AS THE PLAYER
-            # print(f"Game:\n {self._game_string()}")
-            print(f"Player:\n {player_profile_string(self.player_profile)}")
+            # print(f"Game:\n {str(self.game_info)}")
+            print(f"Player:\n {str(self.player_profile)}")
             print("=" * 100)
 
             print("""Choose action:
@@ -109,17 +72,7 @@ class HumanPlayer(PlayerBase):
 
         return -1
 
-    def _call(self):
-        current_bet = self.game_info["current_bet"]
-        return current_bet - self.player_profile["current_round_bet"]
 
-    def _fold(self):
-        return -1
-
-    def _raise(self, x: int):
-        current_bet = self.game_info["current_bet"]
-        return current_bet - self.player_profile["current_round_bet"] + x
-
-    def update_game_info(self, game_info: dict):
+    def update_game_info(self, game_info: GameInfo):
         super().update_game_info(game_info)
         # print(self.game_info)
