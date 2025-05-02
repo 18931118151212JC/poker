@@ -198,31 +198,33 @@ class Game:
         :return: True if the game is still going, False otherwise
         """
 
-        last_index_raised = bet_start_idx
-        current_player_index = bet_start_idx
-        first_flag = True
+        if self.can_raise_cnt() > 1:
 
-        while first_flag or last_index_raised != current_player_index:
-            first_flag = False
-            self.provide_game_info()
-            player_uuid = self.players_ids[current_player_index]
-            player = self.players[current_player_index]
-            player_profile = self.players_profiles[player_uuid]
+            last_index_raised = bet_start_idx
+            current_player_index = bet_start_idx
+            first_flag = True
 
-            if not (player_profile.fold or player_profile.out_of_money or player_profile.all_in):
-                action_bet = player.action()
-                if self._action_processing(action_bet, player_uuid):
-                    last_index_raised = current_player_index
-                elif last_index_raised == current_player_index and player_profile.fold:
-                    # IF THE FIRST PLAYER BET IS FOLD, MAKE THE NEXT PERSON THE FIRST ONE TO BET
-                    last_index_raised = self._get_next_player_idx(current_player_index)
-                    first_flag = True
-
-            current_player_index = self._get_next_player_idx(current_player_index)
-
-            if self.count_active_players() == 1:
+            while first_flag or last_index_raised != current_player_index:
+                first_flag = False
                 self.provide_game_info()
-                return False
+                player_uuid = self.players_ids[current_player_index]
+                player = self.players[current_player_index]
+                player_profile = self.players_profiles[player_uuid]
+
+                if not (player_profile.fold or player_profile.out_of_money or player_profile.all_in):
+                    action_bet = player.action()
+                    if self._action_processing(action_bet, player_uuid):
+                        last_index_raised = current_player_index
+                    elif last_index_raised == current_player_index and player_profile.fold:
+                        # IF THE FIRST PLAYER BET IS FOLD, MAKE THE NEXT PERSON THE FIRST ONE TO BET
+                        last_index_raised = self._get_next_player_idx(current_player_index)
+                        first_flag = True
+
+                current_player_index = self._get_next_player_idx(current_player_index)
+
+                if self.count_active_players() == 1:
+                    self.provide_game_info()
+                    return False
 
         # Set current_round_bet back to 0
         for player_profile in self.players_profiles.values():
@@ -250,6 +252,7 @@ class Game:
             self.game_end()
             return
 
+        self.round_idx += 1
         self.current_round_bet = self.small_blind
         small_blind_player_idx = self.dealer_idx if active_players == 2 else self._get_next_player_idx(self.dealer_idx)
         small_blind_player_id = self.players_ids[small_blind_player_idx]
@@ -260,30 +263,34 @@ class Game:
         big_blind_player_id = self.players_ids[big_blind_player_idx]
         self._action_processing(self.small_blind * 2, big_blind_player_id)
 
+        Game.logger.debug(f"ROUND {self.round_idx} started\n" + str(self._create_game_info()))
         start_bet_idx = self._get_next_player_idx(big_blind_player_idx)
         if not self.play_round(start_bet_idx):
             self.game_end()
             return
 
-        Game.logger.debug(str(self._create_game_info()))
+        self.round_idx += 1
         self.current_round_bet = 0
         self.shown_community_cards = self.community_cards[:3]
+        Game.logger.debug(f"ROUND {self.round_idx} started\n" + str(self._create_game_info()))
         start_bet_idx = self._get_next_player_idx(self.dealer_idx)
         if not self.play_round(start_bet_idx):
             self.game_end()
             return
 
-        Game.logger.debug(str(self._create_game_info()))
+        self.round_idx += 1
         self.current_round_bet = 0
         self.shown_community_cards.append(self.community_cards[3])
+        Game.logger.debug(f"ROUND {self.round_idx} started\n" + str(self._create_game_info()))
         start_bet_idx = self._get_next_player_idx(self.dealer_idx)
         if not self.play_round(start_bet_idx):
             self.game_end()
             return
 
-        Game.logger.debug(str(self._create_game_info()))
+        self.round_idx += 1
         self.current_round_bet = 0
         self.shown_community_cards.append(self.community_cards[4])
+        Game.logger.debug(f"ROUND {self.round_idx} started\n" + str(self._create_game_info()))
         start_bet_idx = self._get_next_player_idx(self.dealer_idx)
         if not self.play_round(start_bet_idx):
             self.game_end()
@@ -307,6 +314,18 @@ class Game:
             player_profile.cards = player_profile.cards + self.community_cards
 
         players_profiles.sort(key=cmp_to_key(PlayerProfile.players_profile_comparator), reverse=True)
+
+        # initial values of money for players and if the player was initially in the game
+        init_money = []
+        was_in_game = []
+
+        for i in range(len(self.players)):
+            player_id = self.players_ids[i]
+            player_profile = self.players_profiles[player_id]
+            money = player_profile.bet + player_profile.money
+            init_money.append(money)
+            was_in_game.append(not player_profile.out_of_money)
+
 
         i = 0
         while i < len(players_profiles):
@@ -333,17 +352,35 @@ class Game:
             for k in range(i, i + total_gain % m):
                 players_profiles[k].money += 1
 
-            for k in range(i, j + 1):
-                players_profiles[k].money += players_profiles[k].bet
+            # for k in range(i, j + 1):
+            #     players_profiles[k].money += players_profiles[k].bet
 
             i = j + 1
 
         for player_profile in players_profiles:
             player_id = player_profile.id
-            self.players_profiles[player_id].money = player_profile.money
+            self.players_profiles[player_id].money = player_profile.money + player_profile.bet
 
         self._update_players_profiles()
         self.dealer_idx = self._get_next_player_idx(self.dealer_idx)
-        Game.logger.debug(str(self._create_game_info()))
+        Game.logger.debug(f"GAME ENDED: \n{str(self._create_game_info())}")
+
+        # calling game_over() for all the players, that participated in the game
+        for i in range(len(self.players)):
+            if was_in_game[i]:
+                player = self.players[i]
+                player_id = self.players_ids[i]
+                player_profile = self.players_profiles[player_id]
+                player.game_over(player_profile.money - init_money[i])
 
         self.game_idx += 1
+        self.round_idx = 0
+
+    def can_raise_cnt(self):
+        """Counts number of players that can raise"""
+        cnt = 0
+        for player_profile in self.players_profiles.values():
+            if not (player_profile.all_in or player_profile.out_of_money or player_profile.fold):
+                cnt += 1
+
+        return cnt

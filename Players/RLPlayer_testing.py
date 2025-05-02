@@ -21,14 +21,15 @@ if __name__ == '__main__':
     # Letting players learn by switching learning rates
     player1 = RLPlayer()
     player2 = RLPlayer()
+    player3 = RLPlayer()
 
-    players = [player1, player2]
+    players = [player1, player2, player3]
 
     for i in range(len(players)):
         players[i].stop_learn()
 
 
-    num_switches = 100
+    num_switches = 200
     num_big_games = 10
     num_games = 5
 
@@ -46,10 +47,12 @@ if __name__ == '__main__':
     for player in players:
         player.stop_learn()
 
-    game = Game(players, 1000, 10)
+    for gameidx in range(10):
 
-    for i in range(5):
-        game.play_game()
+        game = Game(players, 1000, 10)
+
+        for i in range(3):
+            game.play_game()
 
     # GOOD SIDES: Players don't fold without reason, players raise when they have relatively strong hands
     # WEAK SIDES: Players prone to bet all-in even if there are no clear reasons to do something like that

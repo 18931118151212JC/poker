@@ -119,6 +119,12 @@ class Card:
     def __eq__(self, other):
         return self.val == other.val
 
+    def get_card_id(self):
+        n = (Card._suit_to_value[self.val[0]] - 1) * 13 + Card._pips_to_value[self.val[1]]
+        return n
+
+    def __hash__(self):
+        return hash(self.val)
 
 class CombinationFinder:
     """
