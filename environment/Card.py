@@ -3,11 +3,11 @@ from copy import deepcopy
 
 class Card:
     _char_to_string = {
-        "H": "hearts",
-        "D": "diamonds",
-        "C": "clubs",
-        "S": "spades",
-        "1": "ace",
+        "H": "♥️",
+        "D": "♦️",
+        "C": "♣️",
+        "S": "♠️",
+        "1": "A",
         "2": "2",
         "3": "3",
         "4": "4",
@@ -17,9 +17,9 @@ class Card:
         "8": "8",
         "9": "9",
         "a": "10",
-        "b": "jack",
-        "c": "queen",
-        "d": "king"
+        "b": "J",
+        "c": "Q",
+        "d": "K"
     }
 
     _suit_to_value = {
@@ -110,6 +110,21 @@ class Card:
 
         return ans
 
+    def __str__(self):
+        return Card._char_to_string[self.val[0]] + Card._char_to_string[self.val[1]]
+
+    def __repr__(self):
+        return str(self)
+
+    def __eq__(self, other):
+        return self.val == other.val
+
+    def get_card_id(self):
+        n = (Card._suit_to_value[self.val[0]] - 1) * 13 + Card._pips_to_value[self.val[1]]
+        return n
+
+    def __hash__(self):
+        return hash(self.val)
 
 class CombinationFinder:
     """
@@ -280,7 +295,7 @@ class CombinationFinder:
         """
 
         for i in range(len(cards)):
-            if CombinationFinder._path_finder(cards, ((1 << len(cards)) - 1) ^ (1 << i), i, args) + 1 >= length:
+            if CombinationFinder._path_finder(cards, ((1 << len(cards)) - 1) ^ (1 << i), i, *args) + 1 >= length:
                 return cards[i].get_pips()
 
         return -1
@@ -384,7 +399,7 @@ class CombinationFinder:
 
         for i in range(len(cards2)):
             if cards2[i].val[0] == suit2:
-                suit_cards1.append(cards2[i])
+                suit_cards2.append(cards2[i])
 
         for i in range(5):
             if suit_cards1[i].get_pips() != suit_cards2[i].get_pips():
@@ -418,7 +433,7 @@ class CombinationFinder:
     @staticmethod
     def two_pairs_tiebreaker(cards1: list, cards2: list):
         """
-        Highest pair win. Has kicker
+        Highest pair win. Has a kicker
         """
         a1 = {i: 0 for i in Card._pips_to_value.values()}
         a2 = {i: 0 for i in Card._pips_to_value.values()}
