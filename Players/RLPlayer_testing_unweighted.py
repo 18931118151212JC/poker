@@ -21,15 +21,15 @@ if __name__ == '__main__':
     )
 
     # Letting players learn by switching learning rates
-    player1 = RLPlayer()
-    player2 = RLPlayer()
-    player3 = RLPlayer()
+    player1 = RLPlayer(weighted=False)
+    player2 = RLPlayer(weighted=False)
+    player3 = RLPlayer(weighted=False)
 
     players = [player1, player2, player3]
 
-    saved_agent1_file_name = "RLPlayer_agent_sw900_p1_weighted.pkl"
-    saved_agent2_file_name = "RLPlayer_agent_sw900_p2_weighted.pkl"
-    saved_agent3_file_name = "RLPlayer_agent_sw900_p3_weighted.pkl"
+    saved_agent1_file_name = "RLPlayer_agent_sw900_p1_unweighted.pkl"
+    saved_agent2_file_name = "RLPlayer_agent_sw900_p2_unweighted.pkl"
+    saved_agent3_file_name = "RLPlayer_agent_sw900_p3_unweighted.pkl"
 
     if not (exists(saved_agent1_file_name) and exists(saved_agent2_file_name) and exists(saved_agent3_file_name)):
         # agents don't exist, train them
