@@ -41,7 +41,7 @@ class HumanPlayer(PlayerBase):
     def action(self):
         if self.verbose:
             # UNCOMMENT THIS LINE TO SEE THE GAME STATE AS THE PLAYER
-            # print(f"Game:\n {str(self.game_info)}")
+            print(f"Game:\n {str(self.game_info)}")
             print(f"Player:\n {str(self.player_profile)}")
             print("=" * 100)
 

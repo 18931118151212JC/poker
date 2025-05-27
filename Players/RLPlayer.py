@@ -2,7 +2,8 @@
 from poker.Players.PlayerBase import PlayerBase
 from copy import deepcopy
 
-from random import random, randint, uniform
+from random import random, randint, uniform, choices
+from math import exp
 
 
 class RLPlayer(PlayerBase):
@@ -11,7 +12,7 @@ class RLPlayer(PlayerBase):
     otherwise it doesn't
     """
 
-    def __init__(self, is_learning=False, *args):
+    def __init__(self, is_learning=False, weighted=True, *args):
         super().__init__(*args)
         self.alpha = 0.05
         self.gamma = 0.99
@@ -36,6 +37,9 @@ class RLPlayer(PlayerBase):
 
         # Max length of features
         self.MAX_LEN = 20
+
+        # If the action selected should be weighted
+        self.weighted = weighted
 
         self.type_weights = [[0] * self.actions_type_num for _ in range(self.MAX_LEN)]
         self.type_bias = [0 for _ in range(self.actions_type_num)]
@@ -172,7 +176,16 @@ class RLPlayer(PlayerBase):
         if random() < self.epsilon:
             action_type = randint(0, 2)
         else:
-            action_type = max(range(3), key=lambda a: self._q(features, self.type_weights, self.type_bias, a))
+            if self.weighted:
+                # CHOOSE THE VERSION BASED ON PROBABILITY
+                action_prob = [exp(min(709, self._q(features, self.type_weights, self.type_bias, a))) for a in
+                               range(self.actions_type_num)]
+                action_type = choices(range(self.actions_type_num), weights=action_prob, k=1)[0]
+
+            else:
+                # CHOOSE THE MAXIMAL VERSION
+                action_type = max(range(3), key=lambda a: self._q(features, self.type_weights, self.type_bias, a))
+
 
         self.last_action_type = action_type
 
@@ -182,8 +195,16 @@ class RLPlayer(PlayerBase):
             if random() < self.epsilon:
                 action_raise = randint(0, self.actions_raise_num - 1)
             else:
-                action_type = max(range(self.actions_raise_num),
-                                  key=lambda a: self._q(features, self.raise_weights, self.raise_bias, a))
+                if self.weighted:
+                    # CHOOSE PROBABILITY BASED VERSION
+                    action_prob = [exp(min(709, self._q(features, self.raise_weights, self.raise_bias, a)))
+                                   for a in range(self.actions_raise_num)]
+                    action_raise = choices(range(self.actions_raise_num), weights=action_prob, k=1)[0]
+                else:
+                    # CHOOSE THE MAXIMAL VERSION
+                    action_raise = max(range(self.actions_raise_num),
+                                      key=lambda a: self._q(features, self.raise_weights, self.raise_bias, a))
+
             self.last_action_raise = action_raise
 
 
@@ -195,7 +216,7 @@ class RLPlayer(PlayerBase):
         if action_type == 1:
             return super()._call()
 
-        diff = self.total_bank() / (self.actions_raise_num - 1)
+        diff = self.player_profile.money / (self.actions_raise_num - 1)
         rand_val = uniform(-diff / 2, diff / 2)
         raise_val = max(0, round(diff * action_raise + rand_val))
         return super()._raise(raise_val)
