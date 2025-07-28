@@ -12,7 +12,7 @@ class RLPlayer(PlayerBase):
     otherwise it doesn't
     """
 
-    def __init__(self, is_learning=False, weighted=True, *args):
+    def __init__(self, is_learning=False, weighted=True, *args, **kwargs):
         super().__init__(*args)
         self.alpha = 0.05
         self.gamma = 0.99
@@ -90,13 +90,14 @@ class RLPlayer(PlayerBase):
         cur_features = self.get_features()
 
         if not self.is_terminal():
-            q_max = max(range(len(weights[0])), key=lambda ap: self._q(
+            a_max = max(range(len(weights[0])), key=lambda ap: self._q(
                 cur_features,
                 weights,
                 bias,
                 ap
             )
                         )
+            q_max = self._q(cur_features, weights, bias, a_max)
             delta = r + self.gamma * q_max - q_val
         else:
             delta = r - q_val
@@ -174,7 +175,7 @@ class RLPlayer(PlayerBase):
         features = self.get_features()
 
         if random() < self.epsilon:
-            action_type = randint(0, 2)
+            action_type = randint(0, self.actions_type_num - 1)
         else:
             if self.weighted:
                 # CHOOSE THE VERSION BASED ON PROBABILITY
