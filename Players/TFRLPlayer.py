@@ -53,16 +53,15 @@ class TFRLPlayer(RLPlayer):
         self.type_agent = tf.keras.Sequential(
             (
                 [tf.keras.layers.Dense(x, activation='relu') for x in self.type_units]
-                .append(tf.keras.layers.Dense(self.actions_type_num, activation='linear'))
+                + [tf.keras.layers.Dense(self.actions_type_num, activation='linear')]
             )
         )
         self.raise_agent = tf.keras.Sequential(
             (
                 [tf.keras.layers.Dense(x, activation='relu') for x in self.raise_units]
-                .append(tf.keras.layers.Dense(self.actions_type_num, activation='linear'))
+                + [tf.keras.layers.Dense(self.actions_raise_num, activation='linear')]
             )
         )
-
         # compiling the models
         self.type_agent.compile(optimizer='adam', loss="mse")
         self.raise_agent.compile(optimizer='adam', loss="mse")
@@ -83,26 +82,25 @@ class TFRLPlayer(RLPlayer):
             weights,
             bias,
             action
-        )
+        )[0]
 
         cur_features = self.get_features()
 
         # getting different length based on the action
         # using the dummy array to fit it into the keras model
         q_target = q_val
+        a_max_idx = np.argmax(q_val)
         if not self.is_terminal():
             # what action gives the most q value
-            a_max_idx = np.argmax(q_val)
             delta = r + self.gamma * q_val[a_max_idx] - q_val[a_max_idx]
-            q_target[a_max_idx] += delta
-
         else:
-            delta = r - q_val
+            delta = r - q_val[a_max_idx]
             self.epsilon *= self.decay
+        q_target[a_max_idx] += delta
 
         # updating the weights
         agent = self._get_agent(weights)
-        agent.fit(features, q_target, epochs=1, verbose=0)
+        agent.fit(tf.constant([features]), tf.constant([q_target]), epochs=1, verbose=0)
 
     def learn(self, reset_params=True, *args, **kwargs):
         """
@@ -141,7 +139,7 @@ class TFRLPlayer(RLPlayer):
         # if raise
         action_raise = 0
         if action_type == 2:
-            if random < self.epsilon:
+            if random.random() < self.epsilon:
                 action_raise = random.randint(0, self.actions_raise_num - 1)
             else:
                 action_raise = np.argmax(self._q(features, self.raise_weights, self.raise_bias, None))
@@ -170,7 +168,7 @@ class TFRLPlayer(RLPlayer):
         agent = self._get_agent(weights)
 
         # getting the q values array
-        q_val = agent(features)
+        q_val = agent.predict(tf.constant([features]), verbose=0)
 
         return q_val
 

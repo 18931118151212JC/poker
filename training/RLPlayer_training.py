@@ -1,7 +1,7 @@
 import sys
 from copy import deepcopy
 
-from poker.Players.TFRLPlayer import TFRLPlayer
+from poker.Players.RLPlayer import RLPlayer
 from poker.environment.Game import Game
 from random import seed
 from logging import WARNING, DEBUG
@@ -22,14 +22,14 @@ if __name__ == '__main__':
     )
 
     # Letting players learn by switching learning rates
-    player1 = TFRLPlayer()
-    player2 = TFRLPlayer()
-    player3 = TFRLPlayer()
-    player4 = TFRLPlayer()
+    player1 = RLPlayer(weighted=False)
+    player2 = RLPlayer(weighted=False)
+    player3 = RLPlayer(weighted=False)
+    player4 = RLPlayer(weighted=False)
 
     players = [player1, player2, player3, player4]
 
-    saved_agent_file_name = "TFRLPlayer_agent.pkl"
+    saved_agent_file_name = "RLPlayer_agent.pkl"
 
     if not exists(saved_agent_file_name):
         # agent doesn't exist, train
@@ -39,7 +39,7 @@ if __name__ == '__main__':
             players[i].stop_learn()
 
         # number of switches to do to train the agents
-        num_switches = 500
+        num_switches = 1000
         num_big_games = 10
         num_games = 3
 
@@ -51,6 +51,7 @@ if __name__ == '__main__':
                 game = Game(players, 1000, 10)
                 for k in range(num_games):
                     game.play_game()
+            print(i)
             if (i + 1) % 20 == 0:
                 print(f"Completed {i + 1} switches out of {num_switches}")
 
@@ -81,7 +82,7 @@ if __name__ == '__main__':
             players[i].stop_learn()
 
         # number of switches to do to train the agents
-        num_switches = 500
+        num_switches = 1000
         num_big_games = 10
         num_games = 3
 
