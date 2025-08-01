@@ -1,4 +1,4 @@
-from PlayerBase import PlayerBase
+from poker.Players.PlayerBase import PlayerBase
 from random import choices
 
 """

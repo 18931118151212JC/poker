@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from MCCFRPlayer import MCCFPlayer
-from RLPlayer import RLPlayer
+from poker.Players.MCCFRPlayer import MCCFPlayer
+from poker.Players.RLPlayer import RLPlayer
 from pickle import load
 from poker.environment.Game import Game
 import logging
@@ -76,12 +76,12 @@ if __name__ == '__main__':
 
     # ====================================
     # MCCFRPlayer vs RLPlayer(unweighted)
-    MCCFR_nodes_file_name = "MCCFRPlayer_nodes_prob10_sample400.pkl"
+    MCCFR_nodes_file_name = "../Players/MCCFRPlayer_nodes_prob10_sample400.pkl"
     with open(MCCFR_nodes_file_name, "rb") as f:
         MCCFPlayer.nodes = load(f)
     player1 = MCCFPlayer(is_learning=False)
 
-    unweighted_agent_file_name = "RLPlayer_agent_sw900_p3_unweighted.pkl"
+    unweighted_agent_file_name = "../Players/RLPlayer_agent_sw900_p3_unweighted.pkl"
     with open(unweighted_agent_file_name, "rb") as f:
         player2 = load(f)
 
@@ -111,12 +111,12 @@ if __name__ == '__main__':
 
     # ====================================
     # MCCFRPlayer vs RLPlayer(weighted)
-    MCCFR_nodes_file_name = "MCCFRPlayer_nodes_prob10_sample400.pkl"
+    MCCFR_nodes_file_name = "../Players/MCCFRPlayer_nodes_prob10_sample400.pkl"
     with open(MCCFR_nodes_file_name, "rb") as f:
         MCCFPlayer.nodes = load(f)
     player1 = MCCFPlayer(is_learning=False)
 
-    weighted_agent_file_name = "RLPlayer_agent_sw900_p3_weighted.pkl"
+    weighted_agent_file_name = "../Players/RLPlayer_agent_sw900_p3_weighted.pkl"
     with open(weighted_agent_file_name, "rb") as f:
         player2 = load(f)
 
@@ -141,11 +141,11 @@ if __name__ == '__main__':
 
     # ====================================
     # RLPlayer(weighted) vs RLPlayer(weighted)
-    unweighted_agent_file_name = "RLPlayer_agent_sw900_p3_unweighted.pkl"
+    unweighted_agent_file_name = "../Players/RLPlayer_agent_sw900_p3_unweighted.pkl"
     with open(unweighted_agent_file_name, "rb") as f:
         player1 = load(f)
 
-    weighted_agent_file_name = "RLPlayer_agent_sw900_p3_weighted.pkl"
+    weighted_agent_file_name = "../Players/RLPlayer_agent_sw900_p3_weighted.pkl"
     with open(unweighted_agent_file_name, "rb") as f:
         player2 = load(f)
 
@@ -172,7 +172,7 @@ if __name__ == '__main__':
 
     # ====================================
     # MCCFRPlayer vs RLPlayer(weighted)
-    MCCFR_nodes_file_name = "MCCFRPlayer_nodes_prob10_sample400.pkl"
+    MCCFR_nodes_file_name = "../Players/MCCFRPlayer_nodes_prob10_sample400.pkl"
     with open(MCCFR_nodes_file_name, "rb") as f:
         MCCFPlayer.nodes = load(f)
     player1 = MCCFPlayer(is_learning=False)
