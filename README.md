@@ -62,14 +62,42 @@ In the same time, MCCFR against itself has a lower maximum gain comparing with i
 switches of winner throughout large time, supporting the fact that Nash Equilibrium cannot be overplayed and only can give
 stalemate over the large time (though only when there are only 2 players).
 
+
+<div align="center"> 
+  <img width="975" height="731" alt="image" src="https://github.com/user-attachments/assets/78b620d6-3cc9-4575-9263-62b05d49a5f6" />
+  Image 1. MCCFRPlayer against unweighted RLPlayer
+  <br>
+  
+  <img width="975" height="731" alt="image" src="https://github.com/user-attachments/assets/ded340e9-7bde-4bb0-96f1-a6d6cb255e92" />
+  Image 2. MCCFRPlayer against weighted RLPlayer
+  <br>
+  
+  <img width="975" height="731" alt="image" src="https://github.com/user-attachments/assets/cc8669ce-0058-4cea-812b-b813dbebb0f7" />
+  Image 3. Unweighted RLPlayer vs weighted RLPlayer
+  <br>
+  
+  <img width="975" height="731" alt="image" src="https://github.com/user-attachments/assets/505e51c7-866c-451b-9a37-311c3be9e754" />
+  Image 4. MCCFRPlayer aginst itself
+  <br>
+</div>
+
 Another comparison is also after simulation of 1000 games, but this time there were 6 players in total with 2 players of
 each class (every game the seats on the table were shuffled to avoid getting any benefit from location). This time, RL 
 unweighted agent clearly outperformed weighted and MCCFR agents, whereas weighted agent performance was the worst. 
 MCCFR didn't win because it is most effective when there are only 2 players and loses its effectiveness with 3+ players.
+<div align="center">
+  <img width="975" height="647" alt="image" src="https://github.com/user-attachments/assets/5ed6d1d2-c0ea-4ee9-a270-09ac1da53647" />
+  Image 5. Comparison of MCCFR, RL weighted and RL unweighted agents (2 of each)
+</div>
+
 
 Finally, `RLPlayer` (unweighted) and `TFRLPlayer` were trained on simulation of 30000 games with 4 players on the table.
 After settign a table with 2 players of each class (giving 4 players in total) and running 10000 games, custom RL player
 agent has a superior performance over TFRLPlayer.
+<div align="center">
+  <img width="633" height="473" alt="TFRLPlayer vs RLPlayer poker copy" src="https://github.com/user-attachments/assets/64e87495-580b-49c1-8861-966bf1cd859c" />
+  Image 6. Comparison of RL unweighted and Tensor Flow RL agent
+</div>
 
 
 ## Result
