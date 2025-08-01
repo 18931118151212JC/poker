@@ -1,4 +1,4 @@
-# poker
+# Poker agents (Texas Hold'em)
 
 ## About
 
@@ -33,7 +33,7 @@ Important to note that `PlayerBase` has `winning_prob(self, iter_num)`, which es
 while second is used when action type is raise, allowing to choose the raising value. Can be weighted or unweighted based
 on the `weighted` attribute. If the agent is weighted, then softmax function is applied and action is selected based on 
 probabilities; otherwise, if `weighted` has value `False`, then it simply selects the action with the highest reward of Q function.
-Tests show that `weighted` attribute set to `False` tend to show better results (see [Agent Comparison](#agent-comparison)).
+Tests show that `weighted` attribute set to `False` tend to show better results (see [Agent Comparison](#agent-training-and-comparison)).
 Uses epsilon-greedy algorithm. Income in the end of the game are used for the rewards estimates, where losing all money
 gives a huge "negative reward".
 
@@ -44,8 +44,38 @@ probability of winning and quantized current bet in the information set. All the
 shared by all instances of `MCCFRPlayer` class, since the set of nodes is static.
 
 `TFRLPlayer` is subclass of `RLPlayer` with the only difference it uses `tensorflow` library to implement the agent with 
-`tf.keras``.
+`tf.keras.layers.Dense` model. By default, it simply adds one hidden layer, which is equal in size to the input layer. 
+Also, it doesn't use `weighted` attribute. 
 
 
+## Agent Training and comparison
 
-## Agent Comparison
+2 `MCCFRPlayer` agents were trained against each other (1 vs 1) with total number of 200000 games simulated. 
+`RLPLayer` agents were originally trained by allowing only one agent to learn, while others remained the same.
+27000 games were simulated for weighted and not weighted agents each to train. 
+
+To compare the agents, 1000 games were simulated lasting 50 games each or until one player gets the whole bank
+(whichever happens first). The results clearly show that the MCCFR agent is superior in 1 vs 1 setup (which was
+very predictable, since it exploits Nash Equilibrium so nobody can mathematically outperform this agent). Additionally,
+it shows that the weighted RL agents seems to perform worse than unweighted one, though the difference is not very clear.
+In the same time, MCCFR against itself has a lower maximum gain comparing with its setup agains other agents as well as 
+switches of winner throughout large time, supporting the fact that Nash Equilibrium cannot be overplayed and only can give
+stalemate over the large time (though only when there are only 2 players).
+
+Another comparison is also after simulation of 1000 games, but this time there were 6 players in total with 2 players of
+each class (every game the seats on the table were shuffled to avoid getting any benefit from location). This time, RL 
+unweighted agent clearly outperformed weighted and MCCFR agents, whereas weighted agent performance was the worst. 
+MCCFR didn't win because it is most effective when there are only 2 players and loses its effectiveness with 3+ players.
+
+Finally, `RLPlayer` (unweighted) and `TFRLPlayer` were trained on simulation of 30000 games with 4 players on the table.
+After settign a table with 2 players of each class (giving 4 players in total) and running 10000 games, custom RL player
+agent has a superior performance over TFRLPlayer.
+
+
+## Result
+On average `RLPlayer` unweighted has the best performance (which is a simply a linear model). It is recommended to use 
+`MCCFRPlayer` though in case there are only 2 players. 
+
+However, it is important to note that these agents performances were only compared with other agents and not the
+real people. It is possible that some agents can simply find an exploit in other agent policy, which won't work for
+humans.
